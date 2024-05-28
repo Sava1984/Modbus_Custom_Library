@@ -7,4 +7,6 @@ UART1 Slave ID 2, UART2 Slave ID 3.
 
 Реализованы функции 03 - чтение holding регистров и функция 06 - запись holding регистра.
 
+Обработка ошибок llegal adress и illegal function.
+
 
