@@ -60,11 +60,6 @@ const osThreadAttr_t ModbusTask2_attributes = {
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for UsartRecieveSem */
-osSemaphoreId_t UsartRecieveSemHandle;
-const osSemaphoreAttr_t UsartRecieveSem_attributes = {
-  .name = "UsartRecieveSem"
-};
 /* USER CODE BEGIN PV */
 modbus *ctx;
 modbus *ctx2;
@@ -131,10 +126,6 @@ int main(void)
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
-
-  /* Create the semaphores(s) */
-  /* creation of UsartRecieveSem */
-  UsartRecieveSemHandle = osSemaphoreNew(1, 0, &UsartRecieveSem_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -365,28 +356,12 @@ void StartModbusTask(void *argument)
 //	}
 	ctx->Holding_Regs[0] = 0x55AA;
 	// Создаем структуру модбас регистров
-//	modbus_mapping_t *modbus_map;
-//	modbus_map = modbus_mapping_new(10, 0, 0x15, 0);  // обнуляем значения
-//	modbus_map->tab_registers[1] = 0;
-//	ctx = modbus_new_rtu("COM1", 115200, 0, 8, 1);
-//	modbus_set_slave(ctx, 1);
-//	modbus_set_byte_timeout(ctx, 0, 0);
-//	modbus_set_response_timeout(ctx, 0, 0);
-//	modbus_connect(ctx);
-//	modbus_flush(ctx);
 	uint8_t dat[5] = {1,2,3,4,5};
   /* Infinite loop */
   for(;;)
   {
 	rc = Modbus_Recieve(ctx);
 	ctx->Holding_Regs[1]++;
-//		if (rc == 8)
-//		{
-//			//modbus_reply(ctx, req, rc, modbus_map);
-//		}
-	 // HAL_UART_Transmit_DMA(&huart1, dat, 5);
-		//modbus_map->tab_registers[1]+=1;
-    osDelay(1);
   }
   /* USER CODE END 5 */
 }
@@ -408,8 +383,6 @@ void StartModbusTask2(void *argument)
 	ctx2->response_timeout = 200;
 	ctx2->slaveID = 3;
 	HAL_UART_Receive_IT(&huart2, &dataRX2, 1);
-	//memset(ctx->Holding_Regs,0,MAX_ADRESS*2);
-
 	ctx2->mbUart = &huart2;
 	ctx2->Holding_Regs[0] = 0x3344;
   /* Infinite loop */
@@ -417,7 +390,6 @@ void StartModbusTask2(void *argument)
   {
 	  rc = Modbus_Recieve(ctx2);
 	  ctx2->Holding_Regs[2]++;
-    osDelay(1);
   }
   /* USER CODE END StartModbusTask2 */
 }
